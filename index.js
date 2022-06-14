@@ -2,7 +2,6 @@ import { request } from "undici";
 import ShortUniqueId from 'short-unique-id';
 import assert from 'assert';
 import buzzphrase from 'buzzphrase';
-import { setTimeout as wait } from "timers/promises";
 import pLimit from 'p-limit';
 
 const limit = pLimit(20);
@@ -14,6 +13,10 @@ let errorCount = 0;
 const attemptsMax = Number(process.argv[2]);
 const delay = Number(process.argv[3]);
 const departmentId = process.argv[4];
+
+function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function showHelp() {
 	console.log(`
@@ -140,7 +143,7 @@ async function run(delay) {
 		errorCount = 0;
 	} catch(e) {
 		errorCount++;
-		console.error('Impossible to reach server, or to create a new room, or to create a new visitor, or to send a new message. ');
+		console.error('Impossible to reach server, or to create a new room, or to create a new visitor, or to send a new message. Error: ', e);
 	} finally {
 		// hardcoded limit cause we need limits somewhere
 		if (errorCount > 20) {
